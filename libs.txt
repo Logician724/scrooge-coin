@@ -1,0 +1,4 @@
+PyCryptodome
+keyboard
+
+On linux, the library keyboard needs sudo permissions.

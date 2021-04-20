@@ -1,36 +1,37 @@
-__id__ = 0
+from Crypto.Hash import SHA3_512
 
-# Transaction.recipient = Public Key of Recepient
-# Transaction.signature = Private Key of Sender
+latest_transaction_id = 0
 
-# TODO: Prev Hash
-# TODO: Pay Transaction
 class Transaction:
-    def __init__(self):
-        self.id = self.generate_id()
-        self.coins = []
-    
-    def generate_id(self):
-        global __id__
-        __id__ += 1
-
-        return __id__
-    
-    def sign(self, signature):
-        self.signature = signature
+  def __init__(self, recepient_pk):
+    self.id = Transaction.gen_id()
+    self.recepient_pk = recepient_pk
+  @staticmethod
+  def gen_id():
+    global latest_transaction_id
+    id = latest_transaction_id
+    latest_transaction_id += 1
+    return id
 
 class CreateCoinsTransaction(Transaction):
-    def __init__(self, recepient, amount):
-        super().__init__()
+  def __init__(self, amount, recepient_pk):
+    super().__init__(recepient_pk)
+    
+    self.coins = []
+    for i in range(amount):
+      self.coins.append(str(self.id) + '/' + str(i))
+    self.hash = SHA3_512.new(str.encode(str(self.coins) + str(self.recepient_pk)))  
+  def __repr__(self):
+    return 'Transaction ' + str(self.id) + '\nCoin IDS: '+  str(self.coins) + '\n' + 'Transaction Hash: ' +  str(self.hash.digest()) + '\n'
 
-        self.recipient = recipient
-        for i in range(amount):
-            self.coins.append(self.id + ';' + i)
 
 class PayCoinsTransaction(Transaction):
-    def __init__(self):
-        super().__init__()
-
-        # TODO
-
-print(PayCoinsTransaction().id)
+  def __init__(self,sender_pk, sender_signature, recepient_pk, coins):
+    super().__init__(recepient_pk)
+    self.sender_pk = sender_pk
+    self.sender_signature = sender_signature
+    self.recepient_pk = recepient_pk
+    self.coins = coins
+    self.hash = SHA3_512.new(str.encode(str(sender_pk) + str(sender_signature)+ str(recepient_pk) + str(coins)))
+  def __repr__(self):
+    return 'Transaction ' + str(self.id) + '\nPaid Coins: \n' + str(self.coins) + '\n sender_pk ' + str(self.sender_pk) + '\n recepient_pk: ' + str(self.recepient_pk) + '\n'
