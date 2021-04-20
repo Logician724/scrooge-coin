@@ -1,0 +1,4 @@
+Coin:
+    1. its value = 1
+    2. has coin id
+    3. 
